@@ -1,0 +1,9 @@
+<div class="request-form">
+  <button
+    class="btn-submit"
+    [disabled]="isSubmitting"
+    (click)="submitRequest()"
+  >
+    {{ isSubmitting ? 'Submitting...' : 'Request This Material' }}
+  </button>
+</div>

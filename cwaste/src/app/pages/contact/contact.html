@@ -1,0 +1,163 @@
+<div class="contact-container">
+  <!-- Contact Section -->
+  <section class="contact-section">
+    <div class="section-container">
+      <div class="section-header">
+                <button class="back-btn" (click)="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M19 12H5"></path>
+          <path d="M12 19l-7-7 7-7"></path>
+        </svg>
+        <span>Back to Home</span>
+      </button>
+        <h1>Contact Us</h1>
+        <p>We'd love to hear from you! <br> Fill out the form or reach out using the details below.</p>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Contact Information -->
+        <div class="contact-info-section">
+          <h2>Contact Information</h2>
+          <p class="info-subtitle">Fill out the form and our team will get back to you within 24 hours.</p>
+          
+          <div class="contact-info-cards">
+            <div class="info-card" *ngFor="let info of contactInfo">
+              <div class="info-icon">{{ info.icon }}</div>
+              <div class="info-content">
+                <h3>{{ info.title }}</h3>
+                <a [href]="info.link" *ngIf="info.link; else noLink" target="_blank" class="info-link">
+                  {{ info.value }}
+                </a>
+                <ng-template #noLink>
+                  <span class="info-text">{{ info.value }}</span>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="contact-form-section">
+          <div class="form-card">
+            <h2>Send us a Message</h2>
+            <p class="form-subtitle">Have a question or want to work together? We'd love to hear from you.</p>
+
+            <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+              <div class="form-group">
+                <label for="name">Full Name</label>
+                <div class="input-wrapper">
+                  <input
+                    id="name"
+                    type="text"
+                    formControlName="name"
+                    placeholder="Enter your full name"
+                    [class.error]="contactForm.get('name')?.invalid && contactForm.get('name')?.touched"
+                  />
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+                <div class="error-message" *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
+                  {{ getFieldError('name') }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                  <input
+                    id="email"
+                    type="email"
+                    formControlName="email"
+                    placeholder="Enter your email address"
+                    [class.error]="contactForm.get('email')?.invalid && contactForm.get('email')?.touched"
+                  />
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </div>
+                <div class="error-message" *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
+                  {{ getFieldError('email') }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="subject">Subject</label>
+                <div class="input-wrapper">
+                  <input
+                    id="subject"
+                    type="text"
+                    formControlName="subject"
+                    placeholder="What is this about?"
+                    [class.error]="contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched"
+                  />
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <div class="error-message" *ngIf="contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched">
+                  {{ getFieldError('subject') }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="body">Message</label>
+                <div class="textarea-wrapper">
+                  <textarea
+                    id="body"
+                    formControlName="body"
+                    placeholder="Tell us more about your inquiry..."
+                    rows="5"
+                    [class.error]="contactForm.get('body')?.invalid && contactForm.get('body')?.touched"
+                  ></textarea>
+                  <svg class="textarea-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                  </svg>
+                </div>
+                <div class="error-message" *ngIf="contactForm.get('body')?.invalid && contactForm.get('body')?.touched">
+                  {{ getFieldError('body') }}
+                </div>
+              </div>
+
+              <div class="success-alert" *ngIf="successMessage">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22,4 12,14.01 9,11.01"></polyline>
+                </svg>
+                <span>{{ successMessage }}</span>
+              </div>
+
+              <div class="error-alert" *ngIf="errorMessage">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+                <span>{{ errorMessage }}</span>
+              </div>
+
+              <button
+                type="submit"
+                class="submit-button"
+                [disabled]="contactForm.invalid || isLoading"
+              >
+                <span *ngIf="!isLoading">Send Message</span>
+                <div *ngIf="isLoading" class="loading-spinner">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+                      <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
+                      <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
+                    </circle>
+                  </svg>
+                  Sending...
+                </div>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

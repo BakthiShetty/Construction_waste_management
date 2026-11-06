@@ -1,0 +1,309 @@
+<div class="materials-container">
+  <!-- Header Section -->
+  <div class="materials-header">
+    <div class="header-content fade-in">
+      <button class="back-btn" (click)="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M19 12H5"></path>
+          <path d="M12 19l-7-7 7-7"></path>
+        </svg>
+        <span>Back</span>
+      </button>
+      
+      <div class="page-title">
+        <h1>My Materials</h1>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="materials-content">
+    <div class="content-container">
+      
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-section fade-in">
+        <div class="loading-card">
+          <div class="loading-spinner"></div>
+          <p>Loading your materials...</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && materials.length === 0" class="empty-state fade-in">
+        <div class="empty-card">
+          <div class="empty-icon">📭</div>
+          <h3>No Materials Found</h3>
+          <p>You haven't posted any materials yet. Start contributing to sustainable construction!</p>
+          <button class="btn-primary" routerLink="/materials/add">
+            <span>Post Your First Material</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M5 12h14"></path>
+              <path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Materials Grid -->
+      <div *ngIf="!loading && materials.length > 0" class="materials-section">
+
+        <div class="materials-grid">
+          <div 
+            *ngFor="let material of materials; trackBy: trackByMaterialId; let i = index" 
+            class="material-card fade-in"
+            [style.animation-delay]="(i * 0.1) + 's'"
+          >
+            <!-- Material Image -->
+            <div class="material-image-container">
+              <img 
+                [src]="getImageUrl(material)" 
+                [alt]="material.name" 
+                (error)="onImageError($event)"
+                class="material-image"
+                [class.preview]="isEditing(material.id) && imagePreview"
+              />
+              
+              <!-- Image Upload Overlay (only when editing) -->
+              <div *ngIf="isEditing(material.id)" class="image-upload-overlay">
+                <div class="upload-controls">
+                  <label class="upload-btn" for="image-upload-{{ material.id }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <circle cx="9" cy="9" r="2"></circle>
+                      <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                    </svg>
+                    <span>Change Image</span>
+                  </label>
+                  <input 
+                    type="file" 
+                    id="image-upload-{{ material.id }}"
+                    accept="image/*"
+                    (change)="onImageSelected($event)"
+                    class="file-input"
+                  />
+                  <button 
+                    *ngIf="selectedFile" 
+                    (click)="removeSelectedImage()"
+                    class="remove-image-btn"
+                    title="Remove selected image"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+                <div *ngIf="isUploadingImage" class="upload-progress">
+                  <div class="upload-spinner"></div>
+                  <span>Uploading...</span>
+                </div>
+              </div>
+
+              <div class="image-overlay">
+                <app-status-badge 
+                  [status]="material.isAvailable ? 'Available' : 'Unavailable'"
+                  class="status-badge"
+                ></app-status-badge>
+              </div>
+            </div>
+
+            <!-- Material Info -->
+            <div class="material-info">
+              <div class="material-header">
+                <h3 class="material-name">{{ material.name }}</h3>
+                <div class="material-meta">
+                  <div class="material-location">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <span>{{ material.location }}</span>
+                  </div>
+                  <div class="material-date">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>{{ formatDate(material.postedDate) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <p class="material-description">{{ material.description }}</p>
+
+              <!-- Price Section -->
+              <div class="price-section">
+                <div class="price-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                  <span>Price</span>
+                </div>
+                
+                <ng-container *ngIf="isEditing(material.id); else priceDisplay">
+                  <div class="price-edit">
+                    <div class="price-input-wrapper">
+                      <span class="currency-symbol">$</span>
+                      <input 
+                        type="number" 
+                        [(ngModel)]="editedPrice"
+                        class="price-input"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #priceDisplay>
+                  <div class="price-display">
+                    <span class="price-value">{{ formatPrice(material.price) }}</span>
+                    <span class="price-unit">per {{ material.unit || 'unit' }}</span>
+                  </div>
+                </ng-template>
+              </div>
+
+              <!-- Quantity Section -->
+              <div class="quantity-section">
+                <div class="quantity-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                  </svg>
+                  <span>Quantity</span>
+                </div>
+                
+                <ng-container *ngIf="isEditing(material.id); else quantityDisplay">
+                  <div class="quantity-edit">
+                    <input 
+                      type="number" 
+                      [(ngModel)]="editedQuantity"
+                      class="quantity-input"
+                      min="0"
+                    />
+                    <span class="quantity-unit">{{ material.unit || 'units' }}</span>
+                  </div>
+                </ng-container>
+
+                <ng-template #quantityDisplay>
+                  <div class="quantity-display">
+                    <span class="quantity-value">{{ material.quantity }}</span>
+                    <span class="quantity-unit">{{ material.unit || 'units' }}</span>
+                  </div>
+                </ng-template>
+              </div>
+
+              <!-- Total Value Display -->
+              <div class="total-value-section">
+                <div class="total-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                  <span>Total Value</span>
+                </div>
+                <div class="total-display">
+                  <span class="total-value">
+                    {{ formatPrice((isEditing(material.id) ? editedPrice * editedQuantity : material.price * material.quantity)) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Material Actions -->
+            <div class="material-actions">
+              <ng-container *ngIf="!isEditing(material.id); else editingActions">
+                <button 
+                  *ngIf="canEdit(material)"
+                  (click)="startEdit(material)"
+                  class="action-btn edit-btn"
+                  title="Edit material"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  <span>Edit</span>
+                </button>
+
+                <!-- Delete Confirmation -->
+                <ng-container *ngIf="confirmDeleteId === material.id; else showDeleteBtn">
+                  <div class="delete-confirmation">
+                    <span class="confirm-text">Delete this material?</span>
+                    <div class="confirm-actions">
+                      <button 
+                        (click)="confirmDelete(material.id)" 
+                        [disabled]="isDeleting"
+                        class="btn-confirm-delete"
+                      >
+                        Yes
+                      </button>
+                      <button 
+                        (click)="cancelDelete()" 
+                        [disabled]="isDeleting"
+                        class="btn-cancel-delete"
+                      >
+                        No
+                      </button>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #showDeleteBtn>
+                  <button 
+                    *ngIf="canDelete(material)"
+                    (click)="askDelete(material.id)"
+                    class="action-btn delete-btn"
+                    title="Delete material"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <polyline points="3,6 5,6 21,6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    <span>Delete</span>
+                  </button>
+                </ng-template>
+              </ng-container>
+
+              <!-- Editing Actions -->
+              <ng-template #editingActions>
+                <div class="edit-actions">
+                  <button 
+                    (click)="saveEdit(material)" 
+                    [disabled]="isUpdating || isUploadingImage"
+                    class="btn-save"
+                    title="Save changes"
+                  >
+                    <div *ngIf="isUpdating || isUploadingImage" class="action-spinner"></div>
+                    <svg *ngIf="!isUpdating && !isUploadingImage" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                      <polyline points="17,21 17,13 7,13 7,21"></polyline>
+                      <polyline points="7,3 7,8 15,8"></polyline>
+                    </svg>
+                    <span>{{ (isUpdating || isUploadingImage) ? 'Saving...' : 'Save' }}</span>
+                  </button>
+                  <button 
+                    (click)="cancelEdit()" 
+                    [disabled]="isUpdating || isUploadingImage"
+                    class="btn-cancel"
+                    title="Cancel editing"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span>Cancel</span>
+                  </button>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

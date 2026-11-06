@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  frontend:
+    container_name: cwaste-frontend-container
+    build:
+      context: ./cwaste
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - cwaste-network
+
+  backend:
+    container_name: cwaste-backend-container
+    build:
+      context: ./BackendApi
+      dockerfile: Dockerfile
+    ports:
+      - "5004:5004"
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5004
+      ConnectionStrings__DefaultConnection: "Server=db;Database=CWasteDB;User=sa;Password=Pratham_Ajeru_123;TrustServerCertificate=True;"
+    networks:
+      - cwaste-network
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: cwaste-sql-container
+    environment:
+      SA_PASSWORD: "Pratham_Ajeru_123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlvolume:/var/opt/mssql
+    networks:
+      - cwaste-network
+
+volumes:
+  sqlvolume:
+
+networks:
+  cwaste-network:
+    driver: bridge

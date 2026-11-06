@@ -1,0 +1,97 @@
+<div class="reports-management-container">
+  <div class="header-section">
+    <button class="back-btn" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M19 12H5"></path>
+        <path d="M12 19l-7-7 7-7"></path>
+      </svg>
+      <span>Back</span>
+    </button>
+    <div class="title-wrapper">
+      <div class="icon-title">
+        <span class="reports-icon">📊</span>
+        <h2 class="title">Generate Reports</h2>
+      </div>
+      <p class="subtitle">Download comprehensive reports for users, materials, and system logs</p>
+    </div>
+    <button class="refresh-btn" (click)="refreshReports()" [disabled]="loading">
+      <span class="refresh-icon">🔄</span>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading reports...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <div class="error-content">
+      <h3>Error Loading Reports</h3>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="refreshReports()">Try Again</button>
+    </div>
+  </div>
+
+  <!-- Reports Grid -->
+  <div *ngIf="!loading && !error" class="reports-grid-container">
+    <div class="reports-info">
+      <span class="reports-count">
+        <span class="count-number">{{ reportTypes.length }}</span>
+        report types available
+      </span>
+    </div>
+
+    <div class="reports-grid">
+      <div class="report-card" *ngFor="let report of reportTypes">
+        <div class="report-header">
+          <div class="report-icon-wrapper">
+            <span class="report-icon">{{ report.icon }}</span>
+          </div>
+          <div class="report-info">
+            <h3 class="report-title">{{ report.title }}</h3>
+            <p class="report-description">{{ report.description }}</p>
+          </div>
+        </div>
+        
+        <div class="report-stats">
+          <div class="stat-item">
+            <span class="stat-label">Last Generated:</span>
+            <span class="stat-value">{{ report.lastGenerated || 'Never' }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Total Records:</span>
+            <span class="stat-value">{{ report.recordCount || 0 }}</span>
+          </div>
+        </div>
+
+        <div class="report-actions">
+          <button 
+            class="action-btn download-btn"
+            (click)="downloadPdf(report.type)"
+            [disabled]="isProcessing(report.type)"
+            title="Download PDF report">
+            <span class="btn-icon">📄</span>
+            <span class="btn-text">Download PDF</span>
+          </button>
+                          
+          <div *ngIf="isProcessing(report.type)" class="processing-indicator">
+            <div class="mini-spinner"></div>
+            <span class="processing-text">Generating...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="success-container">
+    <div class="success-icon">✅</div>
+    <div class="success-content">
+      <p>{{ successMessage }}</p>
+    </div>
+  </div>
+</div>

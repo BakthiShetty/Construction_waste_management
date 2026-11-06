@@ -1,0 +1,33 @@
+<h2 class="text-xl font-semibold mb-4">Request Detail</h2>
+
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="error">Error loading request details.</div>
+
+<div *ngIf="!loading && request" class="p-4 border rounded bg-white shadow">
+  <p><strong>Material:</strong> {{ request.material.name }}</p>
+  <p><strong>Receiver:</strong> {{ request.receiver?.email || 'N/A' }}</p>
+  <p><strong>Status:</strong> 
+    <span class="font-semibold">{{ request.status }}</span>
+  </p>
+  <p><strong>Requested On:</strong> {{ request.requestedOn | date }}</p>
+
+  <div class="mt-4 flex gap-3">
+    <button
+      class="px-3 py-1 bg-green-600 text-white rounded"
+      *ngIf="request.status === 'Pending'"
+      (click)="updateStatus('Approved')"
+    >Approve</button>
+
+    <button
+      class="px-3 py-1 bg-gray-600 text-white rounded"
+      *ngIf="request.status === 'Approved'"
+      (click)="updateStatus('Completed')"
+    >Mark Completed</button>
+
+    <button
+      class="px-3 py-1 bg-red-600 text-white rounded"
+      *ngIf="request.status !== 'Completed' && request.status !== 'Cancelled'"
+      (click)="updateStatus('Cancelled')"
+    >Cancel</button>
+  </div>
+</div>

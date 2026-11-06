@@ -1,0 +1,342 @@
+<div class="browse-container">
+  <!-- Header Section -->
+  <div class="browse-header">
+    <div class="header-content fade-in">
+            <button class="back-btn" (click)="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M19 12H5"></path>
+          <path d="M12 19l-7-7 7-7"></path>
+        </svg>
+        <span>Back</span>
+      </button>
+      <div class="page-title">
+        <h1>🏗️ Browse Materials</h1>
+        <p class="subtitle">Discover available construction materials from the community</p>
+      </div>
+      
+      <!-- Search and Filter Controls -->
+      <div class="controls-section">
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="M21 21l-4.35-4.35"></path>
+            </svg>
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery"
+              (input)="onSearch()"
+              placeholder="Search materials, locations, descriptions..."
+              class="search-input"
+            />
+            <button 
+              *ngIf="searchQuery" 
+              (click)="clearSearch()"
+              class="clear-search"
+              title="Clear search"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-container">
+          <button 
+            class="filter-btn"
+            (click)="toggleFilters()"
+            [class.active]="showFilters"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
+            </svg>
+            <span>Filters</span>
+            <div class="filter-count" *ngIf="activeFiltersCount > 0">
+              {{ activeFiltersCount }}
+            </div>
+          </button>
+
+          <button 
+            class="sort-btn"
+            (click)="toggleSortMenu()"
+            [class.active]="showSortMenu"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M3 6h18M7 12h10M11 18h2"></path>
+            </svg>
+            <span>Sort</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Panel -->
+      <div class="filter-panel" [class.show]="showFilters">
+        <div class="filter-content">
+          <div class="filter-group">
+            <label class="filter-label">Material Type</label>
+            <select [(ngModel)]="selectedType" (change)="applyFilters()" class="filter-select">
+              <option value="">All Types</option>
+              <option value="pipes">Pipes</option>
+              <option value="cement">Cement</option>
+              <option value="steel">Steel</option>
+              <option value="wood">Wood</option>
+              <option value="sand">Sand</option>
+              <option value="tiles">Tiles</option>
+              <option value="glass">Glass</option>
+              <option value="paint">Paint</option>
+              <option value="bricks">Brick</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+
+          <div class="filter-group">
+            <label class="filter-label">Minimum Quantity</label>
+            <input 
+              type="number" 
+              [(ngModel)]="minQuantity"
+              (input)="applyFilters()"
+              placeholder="0"
+              class="filter-input"
+              min="0"
+            />
+          </div>
+
+          <div class="filter-actions">
+            <button (click)="clearFilters()" class="btn-clear-filters">
+              Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sort Menu -->
+      <div class="sort-menu" [class.show]="showSortMenu">
+        <div class="sort-options">
+          <button 
+            *ngFor="let option of sortOptions"
+            (click)="setSortOption(option)"
+            class="sort-option"
+            [class.active]="currentSort === option.value"
+          >
+            <span>{{ option.label }}</span>
+            <svg *ngIf="currentSort === option.value" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polyline points="20,6 9,17 4,12"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="browse-content">
+    <div class="content-container">
+      
+      <!-- Results Summary -->
+      <div class="results-summary fade-in" *ngIf="!loading">
+        <div class="results-info">
+          <span class="results-count">{{ filteredMaterials.length }}</span>
+          <span class="results-text">
+            {{ filteredMaterials.length === 1 ? 'material' : 'materials' }} available
+          </span>
+          <span *ngIf="searchQuery || hasActiveFilters" class="results-filtered">
+            (filtered from {{ materials.length }} total)
+          </span>
+        </div>
+        
+        <div class="view-toggle">
+          <button 
+            (click)="setViewMode('grid')"
+            class="view-btn"
+            [class.active]="viewMode === 'grid'"
+            title="Grid view"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </button>
+          <button 
+            (click)="setViewMode('list')"
+            class="view-btn"
+            [class.active]="viewMode === 'list'"
+            title="List view"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-section fade-in">
+        <div class="loading-card">
+          <div class="loading-spinner"></div>
+          <p>Discovering available materials...</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && filteredMaterials.length === 0 && materials.length === 0" class="empty-state fade-in">
+        <div class="empty-card">
+          <div class="empty-icon">📭</div>
+          <h3>No Materials Available</h3>
+          <p>There are no materials available at the moment. Check back later or encourage others to post materials!</p>
+          <button class="btn-primary" (click)="goBack()">
+            <span>Back to dashboard</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M5 12h14"></path>
+              <path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- No Results State -->
+      <div *ngIf="!loading && filteredMaterials.length === 0 && materials.length > 0" class="no-results-state fade-in">
+        <div class="no-results-card">
+          <div class="no-results-icon">🔍</div>
+          <h3>No Materials Found</h3>
+          <p>No materials match your current search and filter criteria.</p>
+          <div class="no-results-actions">
+            <button (click)="clearSearch()" class="btn-secondary" *ngIf="searchQuery">
+              Clear Search
+            </button>
+            <button (click)="clearFilters()" class="btn-secondary" *ngIf="hasActiveFilters">
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Materials Grid/List -->
+      <div *ngIf="!loading && filteredMaterials.length > 0" class="materials-section">
+        <div 
+          class="materials-container"
+          [class.grid-view]="viewMode === 'grid'"
+          [class.list-view]="viewMode === 'list'"
+        >
+          <div 
+            *ngFor="let material of filteredMaterials; trackBy: trackByMaterialId; let i = index" 
+            class="material-card fade-in"
+            [style.animation-delay]="(i * 0.05) + 's'"
+          >
+            <!-- Material Image -->
+            <div class="material-image-container">
+              <img 
+                [src]="material.imageUrl || '/placeholder.svg?height=200&width=300'" 
+                [alt]="material.name"
+                class="material-image"
+              />
+              <div class="image-overlay">
+                <div class="availability-badge" [class.available]="material.quantity > 0">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                  </svg>
+                  <span>{{ material.quantity > 0 ? 'Available' : 'Out of Stock' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Material Info -->
+            <div class="material-info">
+              <div class="material-header">
+                <h3 class="material-name">{{ material.name }}</h3>
+                <h4 class="material-price">Price: ₹{{ material.price | number:'1.0-2' }}</h4>
+
+                <div class="material-meta">
+                  <div class="material-location">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <span>{{ material.location }}</span>
+                  </div>
+                  <div class="material-donor" *ngIf="material.donorName">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>{{ material.donorName }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <p class="material-description">{{ material.description }}</p>
+
+              <!-- Quantity Info -->
+              <div class="quantity-info">
+                <div class="quantity-available">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                  </svg>
+                  <span class="quantity-label">Available:</span>
+                  <span class="quantity-value">{{ material.quantity }}</span>
+                  <span class="quantity-unit">{{ material.unit || 'units' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Request Section -->
+            <div class="request-section">
+              <div class="request-form">
+                <div class="quantity-input-group">
+                  <label class="input-label">Request Quantity</label>
+                  <div class="input-wrapper">
+                    <input
+                      type="number"
+                      [(ngModel)]="requestedQuantities[material.id]"
+                      placeholder="0"
+                      class="quantity-input"
+                      min="1"
+                      [max]="material.quantity"
+                      [disabled]="isRequesting || material.quantity === 0"
+                    />
+                    <span class="input-unit">{{ material.unit || 'units' }}</span>
+                  </div>
+                </div>
+
+                <button
+                  class="request-btn"
+                  (click)="requestMaterial(material)"
+                  [disabled]="isRequesting || !requestedQuantities[material.id] || requestedQuantities[material.id] <= 0 || requestedQuantities[material.id] > material.quantity || material.quantity === 0"
+                  [class.requesting]="isRequesting"
+                >
+                  <svg *ngIf="!isRequesting" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 12l2 2 4-4"></path>
+                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.35 0 4.48.9 6.07 2.38"></path>
+                  </svg>
+                  <div *ngIf="isRequesting" class="request-spinner"></div>
+                  <span>{{ isRequesting ? 'Requesting...' : 'Send Request' }}</span>
+                </button>
+              </div>
+
+              <!-- Request Status -->
+              <div class="request-status" *ngIf="material.requestStatus">
+                <div class="status-indicator" [class]="material.requestStatus">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="16,12 12,8 8,12"></polyline>
+                    <line x1="12" y1="16" x2="12" y2="8"></line>
+                  </svg>
+                  <span>{{ getStatusText(material.requestStatus) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<div class="material-card">
+  <img [src]="material.imageUrl" alt="Material Image" />
+
+  <div class="content">
+    <h3>{{ material.name }}</h3>
+    <p> {{ material.location }}</p>
+    <p> Quantity: {{ material.quantity }}</p>
+    <app-status-badge [status]="material.isAvailable ? 'Available' : 'Unavailable'"></app-status-badge>
+  </div>
+</div>
+

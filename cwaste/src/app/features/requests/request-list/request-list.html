@@ -1,0 +1,343 @@
+<div class="requests-container">
+  <!-- Header Section -->
+  <div class="requests-header">
+    <div class="header-content fade-in">
+      <button class="back-btn" (click)="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M19 12H5"></path>
+          <path d="M12 19l-7-7 7-7"></path>
+        </svg>
+        <span>Back</span>
+      </button>
+      <div class="page-title">
+        <h1>📋 My Requests</h1>
+        <p class="subtitle">Track and manage your material requests</p>
+      </div>
+      
+      <!-- Search and Filter Controls -->
+      <div class="controls-section">
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="M21 21l-4.35-4.35"></path>
+            </svg>
+            <input 
+              type="text" 
+              [(ngModel)]="searchText"
+              (input)="onSearch()"
+              placeholder="Search by material name, location..."
+              class="search-input"
+            />
+            <button 
+              *ngIf="searchText" 
+              (click)="clearSearch()"
+              class="clear-search"
+              title="Clear search"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-container">
+          <button 
+            class="filter-btn"
+            (click)="toggleFilters()"
+            [class.active]="showFilters"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
+            </svg>
+            <span>Filters</span>
+            <div class="filter-count" *ngIf="activeFiltersCount > 0">
+              {{ activeFiltersCount }}
+            </div>
+          </button>
+
+          <button 
+            class="sort-btn"
+            (click)="toggleSortMenu()"
+            [class.active]="showSortMenu"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M3 6h18M7 12h10M11 18h2"></path>
+            </svg>
+            <span>Sort</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Panel -->
+      <div class="filter-panel" [class.show]="showFilters">
+        <div class="filter-content">
+          <div class="filter-group">
+            <label class="filter-label">Status</label>
+            <select [(ngModel)]="selectedStatus" (change)="applyFilters()" class="filter-select">
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Declined">Declined</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Date Range</label>
+            <select [(ngModel)]="filterDate" (change)="applyFilters()" class="filter-select">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="last7">Last 7 Days</option>
+              <option value="last30">Last 30 Days</option>
+              <option value="last90">Last 3 Months</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button (click)="clearFilters()" class="btn-clear-filters">
+              Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sort Menu -->
+      <div class="sort-menu" [class.show]="showSortMenu">
+        <div class="sort-options">
+          <button 
+            *ngFor="let option of sortOptions"
+            (click)="setSortOption(option)"
+            class="sort-option"
+            [class.active]="currentSort === option.value"
+          >
+            <span>{{ option.label }}</span>
+            <svg *ngIf="currentSort === option.value" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polyline points="20,6 9,17 4,12"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="requests-content">
+    <div class="content-container">
+      
+      <!-- Results Summary -->
+      <div class="results-summary fade-in" *ngIf="!loading">
+        <div class="results-info">
+          <span class="results-count">{{ filteredRequests.length }}</span>
+          <span class="results-text">
+            {{ filteredRequests.length === 1 ? 'request' : 'requests' }}
+          </span>
+          <span *ngIf="searchText || hasActiveFilters" class="results-filtered">
+            (filtered from {{ requests.length }} total)
+          </span>
+        </div>
+        
+        <div class="status-summary">
+          <div class="status-item" *ngFor="let status of statusSummary">
+            <div class="status-dot" [class]="status.key.toLowerCase()"></div>
+            <span class="status-count">{{ status.count }}</span>
+            <span class="status-label">{{ status.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-section fade-in">
+        <div class="loading-card">
+          <div class="loading-spinner"></div>
+          <p>Loading your requests...</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && requests.length === 0" class="empty-state fade-in">
+        <div class="empty-card">
+          <div class="empty-icon">📝</div>
+          <h3>No Requests Yet</h3>
+          <p>You haven't made any material requests yet. Browse available materials to get started!</p>
+          <button class="btn-primary" routerLink="/requests/browse">
+            <span>Browse Materials</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M5 12h14"></path>
+              <path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- No Results State -->
+      <div *ngIf="!loading && filteredRequests.length === 0 && requests.length > 0" class="no-results-state fade-in">
+        <div class="no-results-card">
+          <div class="no-results-icon">🔍</div>
+          <h3>No Requests Found</h3>
+          <p>No requests match your current search and filter criteria.</p>
+          <div class="no-results-actions">
+            <button (click)="clearSearch()" class="btn-secondary" *ngIf="searchText">
+              Clear Search
+            </button>
+            <button (click)="clearFilters()" class="btn-secondary" *ngIf="hasActiveFilters">
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Requests List -->
+      <div *ngIf="!loading && filteredRequests.length > 0" class="requests-section">
+        <div class="requests-grid">
+          <div 
+            *ngFor="let request of filteredRequests; trackBy: trackByRequestId; let i = index" 
+            class="request-card fade-in"
+            [style.animation-delay]="(i * 0.05) + 's'"
+          >
+            <!-- Request Header -->
+            <div class="request-header">
+              <div class="request-info">
+                <h3 class="material-name">{{ request.material.name }}</h3>
+                <div class="request-meta">
+                  <div class="request-date">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>{{ request.requestedOn | date:'MMM d, y' }}</span>
+                  </div>
+                  <div class="request-id">
+                    <span class="id-label">ID:</span>
+                    <span class="id-value">#{{ request.id }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="status-badge" [class]="request.status.toLowerCase()">
+                <div class="status-indicator"></div>
+                <span>{{ request.status }}</span>
+              </div>
+            </div>
+
+            <!-- Request Details -->
+            <div class="request-details">
+              <div class="detail-row">
+                <div class="detail-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  <div class="detail-content">
+                    <span class="detail-label">Location</span>
+                    <span class="detail-value">{{ request.material.location }}</span>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                  </svg>
+                  <div class="detail-content">
+                    <span class="detail-label">Quantity</span>
+                    <span class="detail-value">{{ request.quantity }} {{ request.material.unit || 'units' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-row" *ngIf="request.material.donorName">
+                <div class="detail-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <div class="detail-content">
+                    <span class="detail-label">Donor</span>
+                    <span class="detail-value">{{ request.material.donorName }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="request-description" *ngIf="request.notes">
+                <p class="description-label">Notes:</p>
+                <p class="description-text">{{ request.notes }}</p>
+              </div>
+            </div>
+
+            <!-- Request Actions -->
+            <div class="request-actions">
+              <div class="action-buttons">
+
+                <!-- Delete Confirmation -->
+                <ng-container *ngIf="confirmDeleteId === request.id; else showDeleteBtn">
+                  <div class="delete-confirmation">
+                    <span class="confirm-text">Delete request?</span>
+                    <div class="confirm-actions">
+                      <button 
+                        (click)="confirmDelete(request.id)" 
+                        [disabled]="isDeleting"
+                        class="btn-confirm-delete"
+                      >
+                        Yes
+                      </button>
+                      <button 
+                        (click)="cancelDelete()" 
+                        [disabled]="isDeleting"
+                        class="btn-cancel-delete"
+                      >
+                        No
+                      </button>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #showDeleteBtn>
+                  <button 
+                    *ngIf="canDeleteRequest(request)"
+                    (click)="askDelete(request.id)"
+                    class="action-btn delete-btn"
+                    title="Delete request"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <polyline points="3,6 5,6 21,6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    <span>Delete</span>
+                  </button>
+                </ng-template>
+              </div>
+
+              <!-- Status Timeline -->
+              <div class="status-timeline" *ngIf="request.statusHistory && request.statusHistory.length > 0">
+                <div class="timeline-header">
+                  <span>Status History</span>
+                  <button (click)="toggleTimeline(request.id)" class="timeline-toggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <polyline points="6,9 12,15 18,9"></polyline>
+                    </svg>
+                  </button>
+                </div>
+                <div class="timeline-content" [class.expanded]="expandedTimelines.has(request.id)">
+                  <div 
+                    *ngFor="let history of request.statusHistory" 
+                    class="timeline-item"
+                  >
+                    <div class="timeline-dot" [class]="history.status.toLowerCase()"></div>
+                    <div class="timeline-info">
+                      <span class="timeline-status">{{ history.status }}</span>
+                      <span class="timeline-date">{{ history.date | date:'MMM d, y h:mm a' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

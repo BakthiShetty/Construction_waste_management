@@ -1,0 +1,121 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content fade-in">
+      <div class="welcome-card">
+          <button class="logout-btn" (click)="logout()" aria-label="Log out">
+          <!-- minimalist icon -->
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none">
+            <path d="M16 17l5-5-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Logout</span>
+        </button>
+        <div class="welcome-content">
+          <h1>👷 Donor Dashboard</h1>
+          <p class="welcome-subtitle">Welcome back! Here's an overview of your donation activities and impact.</p>
+          
+          <!-- Quick Stats Summary -->
+          <div class="quick-summary">
+            <div class="summary-item">
+              <span class="summary-number">{{ materialCount }}</span>
+              <span class="summary-label">Materials Posted</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-number">{{ incomingRequests }}</span>
+              <span class="summary-label">Active Requests</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-number">2.5T</span>
+              <span class="summary-label">CO₂ Saved</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div class="dashboard-content">
+    <!-- Stats Grid -->
+    <section class="stats-section">
+      <div class="section-container">
+        <div class="section-header fade-in">
+          <h2>📊 Your Impact Overview</h2>
+          <p>Track your contribution to sustainable construction</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card fade-in" *ngFor="let stat of stats; let i = index">
+            <div class="stat-content">
+              <div class="stat-icon">{{ stat.icon }}</div>
+              <div class="stat-info">
+                <h3>{{ stat.title }}</h3>
+                <div class="stat-value" [ngClass]="getColorClasses(stat.color)">
+                  <span *ngIf="!stat.loading; else loadingTemplate">
+                    {{ stat.value }}{{ stat.suffix || '' }}
+                  </span>
+                  <ng-template #loadingTemplate>
+                    <div class="loading-skeleton"></div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="actions-section">
+      <div class="section-container">
+        <div class="section-header fade-in">
+          <h2>🚀 Quick Actions</h2>
+          <p>Manage your materials and donations efficiently</p>
+        </div>
+
+        <div class="actions-grid">
+          <a 
+            *ngFor="let action of quickActions" 
+            [routerLink]="action.route" 
+            class="action-card fade-in"
+            [class.primary]="action.primary"
+          >
+            <div class="action-content">
+              <div class="action-icon">{{ action.icon }}</div>
+              <div class="action-info">
+                <h3>{{ action.title }}</h3>
+                <p>{{ action.description }}</p>
+              </div>
+              <div class="action-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M5 12h14"></path>
+                  <path d="M12 5l7 7-7 7"></path>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section">
+      <div class="cta-content fade-in">
+        <h2>Ready to Make More Impact?</h2>
+        <p>Post more materials and help build a sustainable future</p>
+        <div class="cta-actions">
+          <a routerLink="/materials/add" class="btn-primary">
+            Post New Material
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M5 12h14"></path>
+              <path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+          <a routerLink="/materials/mine" class="btn-secondary">View My Materials</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

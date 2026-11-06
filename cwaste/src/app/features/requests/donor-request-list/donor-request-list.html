@@ -1,0 +1,157 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content fade-in">
+      <div class="welcome-card">
+              <button class="back-btn" (click)="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M19 12H5"></path>
+          <path d="M12 19l-7-7 7-7"></path>
+        </svg>
+        <span>Back</span>
+      </button>
+        <div class="welcome-content">
+          <h1>Material Requests Dashboard</h1>
+          <p class="welcome-subtitle">Manage and respond to incoming material requests efficiently</p>
+          <div class="header-stats" *ngIf="!loading && requests.length > 0">
+            <div class="stat-item">
+              <span class="stat-number">{{ requests.length }}</span>
+              <span class="stat-label">Total Requests</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <!-- Loading Section -->
+    <section *ngIf="loading" class="content-section">
+      <div class="section-container">
+        <div class="loading-section fade-in">
+          <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+          </div>
+          <h3>Loading your requests...</h3>
+          <p>Please wait while we fetch your material requests</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Empty State -->
+    <section *ngIf="!loading && requests.length === 0" class="content-section">
+      <div class="section-container">
+        <div class="empty-state fade-in">
+          <div class="empty-card">
+            <div class="empty-illustration">
+              <div class="empty-icon">📭</div>
+              <div class="empty-decoration"></div>
+            </div>
+            <h3>No Material Requests Yet</h3>
+            <p>You haven't received any material requests yet. When someone requests your materials, they'll appear here for you to review and respond to.</p>
+            <div class="empty-actions">
+              <button class="btn-secondary" routerLink="/materials">Share Your Materials</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Requests List -->
+    <section *ngIf="!loading && requests.length > 0" class="content-section">
+      <div class="section-container">
+        <!-- <div class="section-header fade-in">
+          <div class="header-left">
+            <h2>📊 Material Requests</h2>
+            <p>{{ requests.length }} request{{ requests.length !== 1 ? 's' : '' }} received</p>
+          </div>
+          <div class="header-actions">
+            <div class="filter-tabs">
+              <button class="filter-tab active">All</button>
+              <button class="filter-tab">Pending</button>
+              <button class="filter-tab">Approved</button>
+              <button class="filter-tab">Declined</button>
+            </div>
+          </div>
+        </div> -->
+
+        <div class="requests-grid">
+          <div 
+            *ngFor="let req of requests; let i = index"
+            class="request-card fade-in"
+            [style.animation-delay]="(i * 0.1) + 's'"
+          >
+            <div class="card-content">
+              <div class="card-header">
+                <div class="material-info">
+                  <div class="material-title">
+                    <h3>{{ req.materialName }}</h3>
+                    <div class="material-meta">
+                      <span class="quantity-badge">Qty: {{ req.quantity }}</span>
+                    </div>
+                  </div>
+                  <div class="status-badge" [class]="req.status.toLowerCase()">
+                    <div class="status-dot"></div>
+                    {{ req.status }}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card-body">
+                <div class="requester-info">
+                  <div class="requester-avatar">
+                    <span>{{ req.receiverEmail.charAt(0).toUpperCase() }}</span>
+                  </div>
+                  <div class="requester-details">
+                    <span class="requester-email">{{ req.receiverEmail }}</span>
+                    <span class="request-date">{{ req.requestedOn | date:'MMM d, y • h:mm a' }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card-actions" *ngIf="req.status === 'Pending'">
+                <button
+                  (click)="updateStatus(req.id, 'Approved')"
+                  class="btn-approve"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M20 6L9 17l-5-5"></path>
+                  </svg>
+                  Approve Request
+                </button>
+                <button
+                  (click)="updateStatus(req.id, 'Declined')"
+                  class="btn-decline"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 6L6 18"></path>
+                    <path d="M6 6l12 12"></path>
+                  </svg>
+                  Decline
+                </button>
+              </div>
+              
+              <div *ngIf="req.status !== 'Pending'" class="action-info">
+                <div class="action-status" [class]="req.status.toLowerCase()">
+                  <div class="action-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" *ngIf="req.status === 'Approved'">
+                      <path d="M20 6L9 17l-5-5"></path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" *ngIf="req.status === 'Declined'">
+                      <path d="M18 6L6 18"></path>
+                      <path d="M6 6l12 12"></path>
+                    </svg>
+                  </div>
+                  <span>Request {{ req.status.toLowerCase() }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

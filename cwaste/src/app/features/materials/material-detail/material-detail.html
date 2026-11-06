@@ -1,0 +1,9 @@
+<div *ngIf="material">
+  <img [src]="material.imageUrl" alt="Material" />
+  <h2>{{ material.name }}</h2>
+  <p>Type: {{ material.type }}</p>
+  <p>Description: {{ material.description }}</p>
+  <p>Location: {{ material.location }}</p>
+  <p>Quantity: {{ material.quantity }}</p>
+  <app-status-badge [status]="material.isAvailable ? 'Available' : 'Unavailable'"></app-status-badge>
+</div>

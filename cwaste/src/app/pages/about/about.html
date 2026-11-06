@@ -1,0 +1,139 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content fade-in">
+      <div class="welcome-card">
+        <button class="back-btn" (click)="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M19 12H5"></path>
+          <path d="M12 19l-7-7 7-7"></path>
+        </svg>
+        <span>Back to Home</span>
+      </button>
+        <div class="welcome-content">
+          <h1>🌍 About ReConX</h1>
+          <p class="welcome-subtitle">Building a sustainable future through innovative waste management solutions</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <!-- Mission Section -->
+    <section class="stats-section">
+      <div class="section-container">
+        <div class="section-header fade-in">
+          <h2>🎯 Our Purpose</h2>
+          <p>Building a sustainable future through innovative waste management solutions</p>
+        </div>
+        <div class="actions-grid">
+          <div 
+            class="action-card fade-in"
+            *ngFor="let feature of features; let i = index"
+            [style.animation-delay]="(i * 0.2) + 's'"
+          >
+            <div class="action-content">
+              <div class="action-icon">{{ feature.icon }}</div>
+              <div class="action-info">
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+      <div class="section-container">
+        <div class="section-header fade-in">
+          <h2>📊 Our Impact</h2>
+          <p>Real numbers, real change in the construction industry</p>
+        </div>
+        <div class="stats-grid">
+          <div 
+            class="stat-card fade-in"
+            *ngFor="let stat of stats; let i = index"
+            [attr.data-stat-id]="stat.id"
+            [style.animation-delay]="(i * 0.1) + 's'"
+          >
+            <div class="stat-content">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" *ngIf="stat.id === 'savings'"></path>
+                  <path d="M3 3v18h18" *ngIf="stat.id === 'diverted'"></path>
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" *ngIf="stat.id === 'reused'"></path>
+                  <circle cx="12" cy="12" r="10" *ngIf="stat.id === 'co2'"></circle>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <div class="stat-value">
+                  <span class="stat-number">{{ stat.number }}</span>
+                </div>
+                <div class="stat-label">{{ stat.label }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="actions-section">
+      <div class="section-container">
+        <div class="section-header fade-in">
+          <h2>👥 Meet Our Team</h2>
+          <p>Engineers & environmentalists dedicated to building a sustainable India</p>
+        </div>
+        <div class="actions-grid">
+          <div 
+            class="action-card fade-in"
+            *ngFor="let member of teamMembers; let i = index"
+            [style.animation-delay]="(i * 0.15) + 's'"
+          >
+            <div class="action-content">
+              <div class="team-avatar">{{ member.avatar }}</div>
+              <div class="action-info">
+                <h3>{{ member.name }}</h3>
+                <p class="team-role">{{ member.role }}</p>
+                <p class="team-description">{{ member.description }}</p>
+                <a [href]="member.linkedin" class="social-link" target="_blank">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                    <rect x="2" y="9" width="4" height="12"></rect>
+                    <circle cx="4" cy="4" r="2"></circle>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+      <div class="cta-content fade-in">
+        <h2>Ready to Transform Construction?</h2>
+        <p>Join us in building a sustainable future, one project at a time</p>
+        <div class="cta-actions">
+          <a href="/register" class="btn-primary">
+            Get Started Today
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M5 12h14"></path>
+              <path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+          <a href="/auth/login" class="btn-secondary">Sign In
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M5 12h14"></path>
+              <path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

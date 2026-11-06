@@ -1,0 +1,144 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content fade-in">
+      <div class="welcome-card">
+        <div class="header-nav">
+          <div class="logo">
+            <img src="/assets/logo.png" alt="ReConX Logo" />
+            <!-- <span>ReConX</span> -->
+          </div>
+
+          <nav class="main-nav">
+            <a routerLink="/pages/about" class="nav-link">About Us</a>
+            <a routerLink="/pages/contact" class="nav-link">Contact Us</a>
+            <a routerLink="/auth/login" class="nav-link">Login</a>
+            <a routerLink="/auth/register" class="nav-btn">Register</a>
+          </nav>
+        </div>
+        
+        <div class="welcome-content">
+          <h1>🏗️ Reuse <span class="brand-highlight">Construct</span> Exchange</h1>
+          <p class="welcome-subtitle">Connect donors & receivers of reusable materials to reduce landfill and emissions.</p>
+          
+          <!-- Quick Stats Summary -->
+          <div class="quick-summary">
+            <div class="summary-item" *ngFor="let stat of stats">
+              <span class="summary-number">{{ stat.number }}</span>
+              <span class="summary-label">{{ stat.label }}</span>
+            </div>
+          </div>
+          
+          <div class="hero-actions">
+            <a routerLink="/auth/register" class="btn-primary">
+              Join Now
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M5 12h14"></path>
+                <path d="M12 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <!-- Materials Gallery Section -->
+    <section class="stats-section">
+      <div class="section-container">
+        <div class="section-header fade-in">
+          <h2>🧱 Reusable Construction Materials</h2>
+          <p>Discover the variety of construction materials available for reuse in our marketplace</p>
+        </div>
+        
+        <div class="carousel-container fade-in">
+          <button class="carousel-arrow left" (click)="scroll(-1)" aria-label="Previous materials">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+          </button>
+          
+          <div class="materials-wrapper" #scrollContainer>
+            <div class="material-card" *ngFor="let item of materials; let i = index">
+              <div class="stat-content">
+                <div class="image-wrapper">
+                  <img [src]="item.image" [alt]="item.name" loading="lazy" />
+                  <div class="image-overlay"></div>
+                </div>
+                <div class="stat-info">
+                  <h3>{{ item.name }}</h3>
+                  <p>{{ item.description }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <button class="carousel-arrow right" (click)="scroll(1)" aria-label="Next materials">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M9 18l6-6-6-6"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="actions-section">
+      <div class="section-container">
+        <div class="section-header fade-in">
+          <h2>🌟 Why Choose ReConX?</h2>
+          <p>Join the sustainable construction revolution</p>
+        </div>
+        <div class="actions-grid">
+          <div class="action-card fade-in">
+            <div class="action-content">
+              <div class="action-icon">🌍</div>
+              <div class="action-info">
+                <h3>Eco-Friendly</h3>
+                <p>Reduce construction waste and environmental impact through material reuse.</p>
+              </div>
+            </div>
+          </div>
+          <div class="action-card fade-in">
+            <div class="action-content">
+              <div class="action-icon">💰</div>
+              <div class="action-info">
+                <h3>Cost-Effective</h3>
+                <p>Save money by buying and selling reusable construction materials.</p>
+              </div>
+            </div>
+          </div>
+          <div class="action-card fade-in">
+            <div class="action-content">
+              <div class="action-icon">🤝</div>
+              <div class="action-info">
+                <h3>Community Driven</h3>
+                <p>Connect with local builders, contractors, and material suppliers.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section">
+      <div class="cta-content fade-in">
+        <h2>Ready to Make a Difference?</h2>
+        <p>Join thousands of builders creating a sustainable future</p>
+        <div class="cta-actions">
+          <a routerLink="/auth/register" class="btn-primary">
+            Get Started Today
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M5 12h14"></path>
+              <path d="M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+          <a routerLink="/pages/contact" class="btn-secondary">Contact Us</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
